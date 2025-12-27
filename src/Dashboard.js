@@ -11,17 +11,19 @@ export default function Dashboard() {
   /* Difficulty */
   const [difficulty, setDifficulty] = useState("Easy");
 
-  /* Quiz state */
+  /* Quiz State */
   const [questions, setQuestions] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState(null);
   const [score, setScore] = useState(0);
-  const [quizFinished, setQuizFinished] = useState(false);
+
+  /* Party Popup */
+  const [showPopup, setShowPopup] = useState(false);
 
   /* User */
   const username = "Guest";
 
-  /* Load questions when subject or difficulty changes */
+  /* Load Questions */
   useEffect(() => {
     const levelQuestions =
       questionsData?.[selectedSubject]?.[difficulty] || [];
@@ -32,13 +34,14 @@ export default function Dashboard() {
     setCurrentIndex(0);
     setSelectedOption(null);
     setScore(0);
-    setQuizFinished(false);
+    setShowPopup(false);
   }, [selectedSubject, difficulty]);
 
   if (!questions.length) return null;
 
   const currentQuestion = questions[currentIndex];
 
+  /* Next Button */
   const handleNext = () => {
     if (selectedOption === currentQuestion.answer) {
       setScore((prev) => prev + 1);
@@ -48,12 +51,11 @@ export default function Dashboard() {
       setCurrentIndex((prev) => prev + 1);
       setSelectedOption(null);
     } else {
-      setQuizFinished(true);
+      setShowPopup(true); // 🎉 PARTY
     }
   };
 
   const handleLogout = () => {
-    alert("Logged out");
     window.location.href = "/login";
   };
 
@@ -96,57 +98,64 @@ export default function Dashboard() {
         ))}
       </div>
 
-      {/* QUIZ */}
+      {/* QUESTION WINDOW */}
       <div className="quiz-container">
-        {!quizFinished ? (
-          <div className="question-card">
-            <h3>
-              Q{currentIndex + 1}. {currentQuestion.question}
-            </h3>
+        <div className="question-card">
+          <h3>
+            Q{currentIndex + 1}. {currentQuestion.question}
+          </h3>
 
-            <div className="options">
-              {currentQuestion.options.map((opt, index) => (
-                <label
-                  key={index}
-                  className={`option ${
-                    selectedOption === index ? "selected" : ""
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="option"
-                    checked={selectedOption === index}
-                    onChange={() => setSelectedOption(index)}
-                  />
-                  {opt}
-                </label>
-              ))}
-            </div>
+          <div className="options">
+            {currentQuestion.options.map((opt, index) => (
+              <label
+                key={index}
+                className={`option ${
+                  selectedOption === index ? "selected" : ""
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="option"
+                  checked={selectedOption === index}
+                  onChange={() => setSelectedOption(index)}
+                />
+                {opt}
+              </label>
+            ))}
+          </div>
 
-            <button
-              className="next-btn"
-              disabled={selectedOption === null}
-              onClick={handleNext}
-            >
-              {currentIndex === questions.length - 1 ? "Submit" : "Next"}
-            </button>
-          </div>
-        ) : (
-          /* RESULT */
-          <div className="result-card">
-            <h2>Quiz Completed 🎉</h2>
-            <p>
-              Score: <strong>{score} / {questions.length}</strong>
-            </p>
-            <button
-              className="next-btn"
-              onClick={() => setDifficulty(difficulty)}
-            >
-              Retry
-            </button>
-          </div>
-        )}
+          <button
+            className="next-btn"
+            disabled={selectedOption === null}
+            onClick={handleNext}
+          >
+            {currentIndex === questions.length - 1 ? "Submit" : "Next"}
+          </button>
+        </div>
       </div>
+
+      {/* 🎉 PARTY POPUP */}
+      {showPopup && (
+        <div className="party-overlay">
+          <div className="party-popup">
+            <h1>🎉 Congratulations!</h1>
+            <p>
+              You scored <strong>{score}</strong> out of{" "}
+              <strong>{questions.length}</strong>
+            </p>
+
+            <button
+              className="retry-btn"
+              onClick={() => {
+                setShowPopup(false);
+                setDifficulty(difficulty); // reload quiz
+              }}
+            >
+              Retry Quiz 🔄
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
