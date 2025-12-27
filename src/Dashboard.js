@@ -14,6 +14,9 @@ import {
   ArcElement,
 } from "chart.js";
 
+import { auth, db } from "./firebase";
+import { doc, setDoc, getDoc } from "firebase/firestore";
+
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -39,15 +42,28 @@ export default function Dashboard() {
   const [showPopup, setShowPopup] = useState(false);
   const [showResults, setShowResults] = useState(false);
 
-  const username = "Guest";
+  const username = auth.currentUser?.email || "Guest";
 
   const [questionResults, setQuestionResults] = useState([]);
   const [completedLevels, setCompletedLevels] = useState({}); 
   // structure: { "Math": { "Easy": {...results}, "Medium": {...results} } }
 
-  /* Load Questions */
+  // Fetch user progress from Firebase
   useEffect(() => {
-    // If level already completed, don't load MCQs
+    const fetchProgress = async () => {
+      if (!auth.currentUser) return;
+      const userDocRef = doc(db, "users", auth.currentUser.uid);
+      const docSnap = await getDoc(userDocRef);
+      if (docSnap.exists()) {
+        const data = docSnap.data().quizProgress || {};
+        setCompletedLevels(data);
+      }
+    };
+    fetchProgress();
+  }, []);
+
+  // Load questions for selected level
+  useEffect(() => {
     if (completedLevels[selectedSubject]?.[difficulty]) {
       setShowResults(true);
       setShowPopup(false);
@@ -65,51 +81,62 @@ export default function Dashboard() {
     setShowPopup(false);
     setShowResults(false);
     setQuestionResults([]);
-  }, [selectedSubject, difficulty]);
+  }, [selectedSubject, difficulty, completedLevels]);
 
   if (!questions.length && !completedLevels[selectedSubject]?.[difficulty])
     return null;
 
   const currentQuestion = questions[currentIndex];
 
-  /* Next Button */
+  const saveLevelToFirebase = async (subject, difficulty, levelData) => {
+    if (!auth.currentUser) return;
+    const userDocRef = doc(db, "users", auth.currentUser.uid);
+    await setDoc(
+      userDocRef,
+      { quizProgress: { [subject]: { [difficulty]: levelData } } },
+      { merge: true }
+    );
+  };
+
   const handleNext = () => {
     const isCorrect = selectedOption === currentQuestion.answer;
     if (isCorrect) setScore((prev) => prev + 1);
 
-    setQuestionResults((prev) => [
-      ...prev,
+    const updatedResults = [
+      ...questionResults,
       { question: currentQuestion.question, correct: isCorrect },
-    ]);
+    ];
+    setQuestionResults(updatedResults);
 
     if (currentIndex < questions.length - 1) {
       setCurrentIndex((prev) => prev + 1);
       setSelectedOption(null);
     } else {
-      // Save results for this level
+      const levelData = {
+        score: score + (isCorrect ? 1 : 0),
+        total: questions.length,
+        results: updatedResults,
+      };
+
       setCompletedLevels((prev) => ({
         ...prev,
         [selectedSubject]: {
           ...prev[selectedSubject],
-          [difficulty]: {
-            score: score + (isCorrect ? 1 : 0),
-            total: questions.length,
-            results: [
-              ...questionResults,
-              { question: currentQuestion.question, correct: isCorrect },
-            ],
-          },
+          [difficulty]: levelData,
         },
       }));
+
+      saveLevelToFirebase(selectedSubject, difficulty, levelData);
+
       setShowPopup(true);
     }
   };
 
   const handleLogout = () => {
+    auth.signOut();
     window.location.href = "/login";
   };
 
-  /* Chart Data */
   const currentLevelResults =
     completedLevels[selectedSubject]?.[difficulty] || {};
 
@@ -155,7 +182,6 @@ export default function Dashboard() {
       setShowResults(false);
       setShowPopup(false);
     } else {
-      // All levels done, maybe reset or notify
       alert("You have completed all levels for this subject!");
     }
   };
