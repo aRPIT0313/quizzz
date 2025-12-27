@@ -24,11 +24,34 @@ const Login = () => {
     <div className="auth-container">
       <form className="auth-card" onSubmit={handleLogin}>
         <h2>Login</h2>
-        <input placeholder="Email" onChange={(e) => setEmail(e.target.value)} />
-        <input type="password" placeholder="Password" onChange={(e) => setPassword(e.target.value)} />
+
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+
         {error && <p className="error">{error}</p>}
-        <button>Login</button>
-        <p onClick={() => navigate("/register")}>Register</p>
+
+        <button type="submit">Login</button>
+
+        <p
+          className="register-link"
+          onClick={() => navigate("/register")}
+          style={{ cursor: "pointer", color: "blue", textDecoration: "underline", marginTop: "10px" }}
+        >
+          Register
+        </p>
       </form>
     </div>
   );
