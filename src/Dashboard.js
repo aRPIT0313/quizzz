@@ -25,34 +25,39 @@ ChartJS.register(
 );
 
 export default function Dashboard() {
-  /* Subjects */
   const subjects = ["Math", "Science", "English"];
-  const [selectedSubject, setSelectedSubject] = useState("Math");
+  const difficulties = ["Easy", "Medium", "Hard"];
 
-  /* Difficulty */
+  const [selectedSubject, setSelectedSubject] = useState("Math");
   const [difficulty, setDifficulty] = useState("Easy");
 
-  /* Quiz State */
   const [questions, setQuestions] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState(null);
   const [score, setScore] = useState(0);
 
-  /* Party / Result */
   const [showPopup, setShowPopup] = useState(false);
   const [showResults, setShowResults] = useState(false);
 
-  /* User */
   const username = "Guest";
 
-  /* Track per-question correctness */
   const [questionResults, setQuestionResults] = useState([]);
+  const [completedLevels, setCompletedLevels] = useState({}); 
+  // structure: { "Math": { "Easy": {...results}, "Medium": {...results} } }
 
   /* Load Questions */
   useEffect(() => {
+    // If level already completed, don't load MCQs
+    if (completedLevels[selectedSubject]?.[difficulty]) {
+      setShowResults(true);
+      setShowPopup(false);
+      return;
+    }
+
     const levelQuestions =
       questionsData?.[selectedSubject]?.[difficulty] || [];
     const shuffled = shuffleArray(levelQuestions).slice(0, 10);
+
     setQuestions(shuffled);
     setCurrentIndex(0);
     setSelectedOption(null);
@@ -62,7 +67,8 @@ export default function Dashboard() {
     setQuestionResults([]);
   }, [selectedSubject, difficulty]);
 
-  if (!questions.length) return null;
+  if (!questions.length && !completedLevels[selectedSubject]?.[difficulty])
+    return null;
 
   const currentQuestion = questions[currentIndex];
 
@@ -80,6 +86,21 @@ export default function Dashboard() {
       setCurrentIndex((prev) => prev + 1);
       setSelectedOption(null);
     } else {
+      // Save results for this level
+      setCompletedLevels((prev) => ({
+        ...prev,
+        [selectedSubject]: {
+          ...prev[selectedSubject],
+          [difficulty]: {
+            score: score + (isCorrect ? 1 : 0),
+            total: questions.length,
+            results: [
+              ...questionResults,
+              { question: currentQuestion.question, correct: isCorrect },
+            ],
+          },
+        },
+      }));
       setShowPopup(true);
     }
   };
@@ -88,16 +109,25 @@ export default function Dashboard() {
     window.location.href = "/login";
   };
 
-  /* Prepare Chart Data */
+  /* Chart Data */
+  const currentLevelResults =
+    completedLevels[selectedSubject]?.[difficulty] || {};
+
   const barData = {
-    labels: questionResults.map((_, idx) => `Q${idx + 1}`),
+    labels: currentLevelResults.results
+      ? currentLevelResults.results.map((_, idx) => `Q${idx + 1}`)
+      : [],
     datasets: [
       {
         label: "Correct (1) / Wrong (0)",
-        data: questionResults.map((q) => (q.correct ? 1 : 0)),
-        backgroundColor: questionResults.map((q) =>
-          q.correct ? "#16a34a" : "#ef4444"
-        ),
+        data: currentLevelResults.results
+          ? currentLevelResults.results.map((q) => (q.correct ? 1 : 0))
+          : [],
+        backgroundColor: currentLevelResults.results
+          ? currentLevelResults.results.map((q) =>
+              q.correct ? "#16a34a" : "#ef4444"
+            )
+          : [],
       },
     ],
   };
@@ -107,13 +137,27 @@ export default function Dashboard() {
     datasets: [
       {
         label: "Overall Performance",
-        data: [
-          questionResults.filter((q) => q.correct).length,
-          questionResults.filter((q) => !q.correct).length,
-        ],
+        data: currentLevelResults.results
+          ? [
+              currentLevelResults.results.filter((q) => q.correct).length,
+              currentLevelResults.results.filter((q) => !q.correct).length,
+            ]
+          : [],
         backgroundColor: ["#16a34a", "#ef4444"],
       },
     ],
+  };
+
+  const moveToNextLevel = () => {
+    const currentIndex = difficulties.indexOf(difficulty);
+    if (currentIndex < difficulties.length - 1) {
+      setDifficulty(difficulties[currentIndex + 1]);
+      setShowResults(false);
+      setShowPopup(false);
+    } else {
+      // All levels done, maybe reset or notify
+      alert("You have completed all levels for this subject!");
+    }
   };
 
   return (
@@ -121,7 +165,6 @@ export default function Dashboard() {
       {/* NAVBAR */}
       <nav className="navbar">
         <div className="nav-left">Qvizz</div>
-
         <div className="nav-center">
           {subjects.map((subj) => (
             <span
@@ -133,7 +176,6 @@ export default function Dashboard() {
             </span>
           ))}
         </div>
-
         <div className="nav-right">
           <span className="username">{username}</span>
           <button className="logout-btn" onClick={handleLogout}>
@@ -144,7 +186,7 @@ export default function Dashboard() {
 
       {/* DIFFICULTY */}
       <div className="difficulty-bar">
-        {["Easy", "Medium", "Hard"].map((level) => (
+        {difficulties.map((level) => (
           <button
             key={level}
             className={difficulty === level ? "active" : ""}
@@ -156,40 +198,43 @@ export default function Dashboard() {
       </div>
 
       {/* QUESTION WINDOW */}
-      {!showResults && (
-        <div className="quiz-container">
-          <div className="question-card">
-            <h3>
-              Q{currentIndex + 1}. {currentQuestion.question}
-            </h3>
+      {!showResults &&
+        !completedLevels[selectedSubject]?.[difficulty] && (
+          <div className="quiz-container">
+            <div className="question-card">
+              <h3>
+                Q{currentIndex + 1}. {currentQuestion.question}
+              </h3>
 
-            <div className="options">
-              {currentQuestion.options.map((opt, index) => (
-                <label
-                  key={index}
-                  className={`option ${selectedOption === index ? "selected" : ""}`}
-                >
-                  <input
-                    type="radio"
-                    name="option"
-                    checked={selectedOption === index}
-                    onChange={() => setSelectedOption(index)}
-                  />
-                  {opt}
-                </label>
-              ))}
+              <div className="options">
+                {currentQuestion.options.map((opt, index) => (
+                  <label
+                    key={index}
+                    className={`option ${
+                      selectedOption === index ? "selected" : ""
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="option"
+                      checked={selectedOption === index}
+                      onChange={() => setSelectedOption(index)}
+                    />
+                    {opt}
+                  </label>
+                ))}
+              </div>
+
+              <button
+                className="next-btn"
+                disabled={selectedOption === null}
+                onClick={handleNext}
+              >
+                {currentIndex === questions.length - 1 ? "Submit" : "Next"}
+              </button>
             </div>
-
-            <button
-              className="next-btn"
-              disabled={selectedOption === null}
-              onClick={handleNext}
-            >
-              {currentIndex === questions.length - 1 ? "Submit" : "Next"}
-            </button>
           </div>
-        </div>
-      )}
+        )}
 
       {/* 🎉 PARTY POPUP */}
       {showPopup && !showResults && (
@@ -213,8 +258,11 @@ export default function Dashboard() {
 
       {/* CHARTS VIEW */}
       {showResults && (
-        <div className="charts-container" style={{ padding: "30px", textAlign: "center" }}>
-          <h2>📊 Quiz Results</h2>
+        <div
+          className="charts-container"
+          style={{ padding: "30px", textAlign: "center" }}
+        >
+          <h2>📊 Results for {difficulty} Level</h2>
 
           <div style={{ width: "700px", margin: "20px auto" }}>
             <Bar
@@ -244,20 +292,12 @@ export default function Dashboard() {
             />
           </div>
 
-          {/* BACK BUTTON */}
           <button
             className="next-btn"
             style={{ marginTop: "20px" }}
-            onClick={() => {
-              setShowResults(false);
-              setShowPopup(false);
-              setCurrentIndex(0);
-              setSelectedOption(null);
-              setScore(0);
-              setQuestionResults([]);
-            }}
+            onClick={moveToNextLevel}
           >
-            Back to Quiz 🔙
+            Back to Quiz / Next Level 🔜
           </button>
         </div>
       )}
