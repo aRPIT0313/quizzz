@@ -46,7 +46,6 @@ export default function Dashboard() {
 
   const [questionResults, setQuestionResults] = useState([]);
   const [completedLevels, setCompletedLevels] = useState({}); 
-  // structure: { "Math": { "Easy": {...results}, "Medium": {...results} } }
 
   // Fetch user progress from Firebase
   useEffect(() => {
@@ -99,6 +98,8 @@ export default function Dashboard() {
   };
 
   const handleNext = () => {
+    if (selectedOption === null) return; // Extra safety check
+
     const isCorrect = selectedOption === currentQuestion.answer;
     if (isCorrect) setScore((prev) => prev + 1);
 
