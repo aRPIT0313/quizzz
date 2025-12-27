@@ -1,0 +1,126 @@
+const questions = {
+  Math: {
+    Easy: [
+      { question: "What is 2 + 3?", options: ["4", "5", "6", "7"], answer: 1 },
+      { question: "What is 10 − 4?", options: ["5", "6", "7", "8"], answer: 1 },
+      { question: "What is 5 × 2?", options: ["7", "8", "9", "10"], answer: 3 },
+      { question: "What is 12 ÷ 4?", options: ["2", "3", "4", "5"], answer: 1 },
+      { question: "Which number is even?", options: ["3", "5", "7", "8"], answer: 3 },
+      { question: "What comes after 19?", options: ["18", "20", "21", "22"], answer: 1 },
+      { question: "What is 7 + 6?", options: ["12", "13", "14", "15"], answer: 1 },
+      { question: "How many sides does a square have?", options: ["3", "4", "5", "6"], answer: 1 },
+      { question: "What is 9 − 3?", options: ["3", "4", "5", "6"], answer: 3 },
+      { question: "What is 1 × 8?", options: ["6", "7", "8", "9"], answer: 2 },
+    ],
+
+    Medium: [
+      { question: "What is 15 × 4?", options: ["40", "50", "60", "70"], answer: 2 },
+      { question: "What is 144 ÷ 12?", options: ["10", "11", "12", "13"], answer: 2 },
+      { question: "What is the square of 9?", options: ["18", "81", "72", "99"], answer: 1 },
+      { question: "What is 25% of 200?", options: ["25", "40", "50", "60"], answer: 2 },
+      { question: "Solve: 3² + 4²", options: ["25", "12", "49", "7"], answer: 0 },
+      { question: "What is 7 × 8?", options: ["54", "56", "58", "60"], answer: 1 },
+      { question: "What is 100 − 37?", options: ["63", "73", "67", "53"], answer: 0 },
+      { question: "What is the cube of 3?", options: ["6", "9", "27", "81"], answer: 2 },
+      { question: "Which is a prime number?", options: ["9", "15", "17", "21"], answer: 2 },
+      { question: "What is 5³?", options: ["25", "75", "100", "125"], answer: 3 },
+    ],
+
+    Hard: [
+      { question: "What is √144?", options: ["10", "11", "12", "13"], answer: 2 },
+      { question: "Solve: 2x = 18", options: ["7", "8", "9", "10"], answer: 2 },
+      { question: "What is 15²?", options: ["225", "215", "205", "195"], answer: 0 },
+      { question: "What is the value of π (approx)?", options: ["2.14", "3.14", "4.14", "5.14"], answer: 1 },
+      { question: "Solve: 3x + 5 = 20", options: ["3", "4", "5", "6"], answer: 1 },
+      { question: "What is √81 + √16?", options: ["11", "12", "13", "14"], answer: 0 },
+      { question: "What is 2³ × 4?", options: ["16", "24", "32", "64"], answer: 1 },
+      { question: "If x = 5, what is x² − 1?", options: ["20", "24", "26", "30"], answer: 1 },
+      { question: "What is 100 ÷ (5 × 4)?", options: ["2", "4", "5", "10"], answer: 2 },
+      { question: "Solve: 9² − 8²", options: ["17", "19", "23", "25"], answer: 1 },
+    ],
+  },
+
+  Science: {
+    Easy: [
+      { question: "What planet do we live on?", options: ["Mars", "Earth", "Venus", "Jupiter"], answer: 1 },
+      { question: "Water freezes at?", options: ["0°C", "50°C", "100°C", "25°C"], answer: 0 },
+      { question: "Which gas do plants use?", options: ["Oxygen", "Carbon Dioxide", "Nitrogen", "Hydrogen"], answer: 1 },
+      { question: "How many senses do humans have?", options: ["4", "5", "6", "7"], answer: 1 },
+      { question: "Sun is a?", options: ["Planet", "Star", "Moon", "Asteroid"], answer: 1 },
+      { question: "Which organ pumps blood?", options: ["Brain", "Lungs", "Heart", "Kidney"], answer: 2 },
+      { question: "What do we breathe?", options: ["CO₂", "Oxygen", "Hydrogen", "Nitrogen"], answer: 1 },
+      { question: "Which is a living thing?", options: ["Rock", "Water", "Tree", "Air"], answer: 2 },
+      { question: "Which part helps us see?", options: ["Ear", "Eye", "Nose", "Hand"], answer: 1 },
+      { question: "Which animal barks?", options: ["Cat", "Cow", "Dog", "Horse"], answer: 2 },
+    ],
+
+    Medium: [
+      { question: "What is H₂O?", options: ["Oxygen", "Water", "Hydrogen", "Salt"], answer: 1 },
+      { question: "Which organ cleans blood?", options: ["Heart", "Liver", "Kidney", "Lungs"], answer: 2 },
+      { question: "Force is measured in?", options: ["Joule", "Watt", "Newton", "Meter"], answer: 2 },
+      { question: "Which vitamin comes from sunlight?", options: ["A", "B", "C", "D"], answer: 3 },
+      { question: "Boiling point of water?", options: ["50°C", "100°C", "150°C", "0°C"], answer: 1 },
+      { question: "Which gas is needed for burning?", options: ["Oxygen", "CO₂", "Nitrogen", "Hydrogen"], answer: 0 },
+      { question: "Largest organ in body?", options: ["Heart", "Skin", "Brain", "Liver"], answer: 1 },
+      { question: "Which metal is liquid?", options: ["Iron", "Gold", "Mercury", "Silver"], answer: 2 },
+      { question: "Plant food making process?", options: ["Respiration", "Digestion", "Photosynthesis", "Transpiration"], answer: 2 },
+      { question: "Speed unit?", options: ["m/s", "kg", "N", "J"], answer: 0 },
+    ],
+
+    Hard: [
+      { question: "Chemical formula of salt?", options: ["NaCl", "HCl", "KCl", "Na₂CO₃"], answer: 0 },
+      { question: "pH of neutral solution?", options: ["5", "6", "7", "8"], answer: 2 },
+      { question: "Unit of electric current?", options: ["Volt", "Ampere", "Ohm", "Watt"], answer: 1 },
+      { question: "Which blood cells fight disease?", options: ["RBC", "WBC", "Platelets", "Plasma"], answer: 1 },
+      { question: "Speed of light?", options: ["3×10⁸ m/s", "3×10⁶ m/s", "3×10⁴ m/s", "3×10² m/s"], answer: 0 },
+      { question: "DNA stands for?", options: ["Deoxyribonucleic Acid", "Dynamic Network Array", "Digital Node Access", "None"], answer: 0 },
+      { question: "Which is non-metal?", options: ["Iron", "Copper", "Oxygen", "Aluminium"], answer: 2 },
+      { question: "SI unit of pressure?", options: ["Pascal", "Newton", "Joule", "Watt"], answer: 0 },
+      { question: "Human chromosome count?", options: ["42", "44", "46", "48"], answer: 2 },
+      { question: "Heat transfer without medium?", options: ["Conduction", "Convection", "Radiation", "Evaporation"], answer: 2 },
+    ],
+  },
+
+  English: {
+    Easy: [
+      { question: "Synonym of Happy?", options: ["Sad", "Angry", "Joyful", "Tired"], answer: 2 },
+      { question: "Opposite of Hot?", options: ["Warm", "Cold", "Cool", "Dry"], answer: 1 },
+      { question: "Plural of Cat?", options: ["Cats", "Cates", "Cat's", "Caties"], answer: 0 },
+      { question: "Fill blank: I ___ a book.", options: ["read", "reads", "reading", "have read"], answer: 0 },
+      { question: "Which is a vowel?", options: ["B", "C", "A", "D"], answer: 2 },
+      { question: "He ___ fast.", options: ["run", "runs", "running", "ran"], answer: 1 },
+      { question: "Opposite of Big?", options: ["Huge", "Large", "Small", "Tall"], answer: 2 },
+      { question: "Synonym of Fast?", options: ["Slow", "Quick", "Late", "Weak"], answer: 1 },
+      { question: "Which is a noun?", options: ["Run", "Blue", "Dog", "Quick"], answer: 2 },
+      { question: "Plural of Child?", options: ["Childs", "Children", "Childes", "Childrens"], answer: 1 },
+    ],
+
+    Medium: [
+      { question: "Antonym of Honest?", options: ["Kind", "Truthful", "Dishonest", "Polite"], answer: 2 },
+      { question: "Past tense of Go?", options: ["Gone", "Went", "Going", "Go"], answer: 1 },
+      { question: "She ___ playing.", options: ["is", "are", "was", "were"], answer: 0 },
+      { question: "Synonym of Brave?", options: ["Coward", "Fearful", "Courageous", "Weak"], answer: 2 },
+      { question: "Which is an adjective?", options: ["Run", "Beauty", "Quick", "Sing"], answer: 2 },
+      { question: "Plural of Mouse?", options: ["Mouses", "Mouse", "Mice", "Meese"], answer: 2 },
+      { question: "Opposite of Begin?", options: ["Start", "Open", "End", "Create"], answer: 2 },
+      { question: "He ___ already left.", options: ["has", "have", "had", "having"], answer: 0 },
+      { question: "Which is a verb?", options: ["Jump", "Tall", "Blue", "Happy"], answer: 0 },
+      { question: "Synonym of Smart?", options: ["Clever", "Dull", "Lazy", "Slow"], answer: 0 },
+    ],
+
+    Hard: [
+      { question: "Figure of speech in 'Time is money'?", options: ["Simile", "Metaphor", "Personification", "Irony"], answer: 1 },
+      { question: "Antonym of Scarce?", options: ["Rare", "Plenty", "Few", "Less"], answer: 1 },
+      { question: "Correct passive: He wrote a letter", options: ["Letter was written", "Letter is written", "Letter writes", "Letter writing"], answer: 0 },
+      { question: "Synonym of Obsolete?", options: ["Modern", "Outdated", "New", "Fresh"], answer: 1 },
+      { question: "Which is a conjunction?", options: ["And", "Very", "Quickly", "Blue"], answer: 0 },
+      { question: "Plural of Crisis?", options: ["Crisises", "Crisis", "Crises", "Crisas"], answer: 2 },
+      { question: "Correct spelling?", options: ["Accomodate", "Acommodate", "Accommodate", "Acomodate"], answer: 2 },
+      { question: "Synonym of Transparent?", options: ["Clear", "Dark", "Solid", "Thick"], answer: 0 },
+      { question: "Which is an adverb?", options: ["Quick", "Quickly", "Beauty", "Bright"], answer: 1 },
+      { question: "Opposite of Expand?", options: ["Grow", "Increase", "Contract", "Develop"], answer: 2 },
+    ],
+  },
+};
+
+export default questions;
